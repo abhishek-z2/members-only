@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up!</title>
+</head>
+<body>
+   <h1>sign up</h1> 
+   <% if(typeof errors!== "undefined"){ %>
+    <ul>
+        <%errors.forEach(error => { %>
+            <li style="color:red"><%= error.msg %></li>
+        <%})%>
+    </ul>    
+<%}%>
+   <form action="signup" method="POST">
+    <label for="firstname">First Name</label>
+    <input type="text" id="firstname" name="firstname">
+    <label for="lastname">last Name</label>
+    <input type="text" id="lastname" name="lastname">
+    <label for="username">username</label>
+    <input type="text" id="username" name="username">
+    <label for="password">password</label>
+    <input type="password" id="password" name="password">
+    <label for="confirmPassword">confirm password</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="confirm password">
+    <input type="checkbox" name="admin" id="admin"> sign up as admin
+   <button type="submit">submit</button>
+   </form>
+</body>
+</html>

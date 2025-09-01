@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Messages</title>
+</head>
+
+<body>
+    <h1>Message Board</h1>
+
+    <% if (user) { %>
+        <form action="/messages" method="POST">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title" placeholder="write your message">;
+            <textarea name="body" required></textarea>
+            <button type="submit">Post</button>
+        </form>
+        <p>Logged in as <%= user.username %>
+        </p>
+        <% } else { %>
+            <p>You must <a href="/login">log in</a> to post a message.</p>
+            <% } %>
+
+                <h2>All Messages</h2>
+                <ul>
+                    <% messages.forEach(msg=> { %>
+                        <li>
+                            <% if(user.membership_status){%>
+                                <h3>
+                                    <%= msg.firstname %>:
+                                </h3>
+                                <em>(<%= msg.created_at.toLocaleString() %>)</em> <br>
+                                <%}%>
+                                    <b>
+
+                                        <%= msg.user_id %> :
+                                        <%= msg.title %> :
+                                    </b>
+                                    <%= msg.body %>
+                                        <% if(user.admin){%>
+                                            <form action="<%=msg.id%>/delete" method="POST">
+                                                <button type="submit">Delete</button>
+                                            </form>
+                                            <%}%>
+                        </li>
+                        <% }) %>
+                </ul>
+                <% if(!user.membership_status){%>
+                    <h3>become a member</h3>
+                    <form action="/grant-membership" method="POST">
+                        <input type="password" name="passcode" placeholder="enter the passcode">
+                        <button type="submit" style="background-color:green;color:white">SUBMIT</button>
+                    </form>
+                    <%}%>
+</body>
+
+</html>
