@@ -33,53 +33,68 @@ exports.signup_post = [
     const { firstname, lastname, username, password } = req.body;
     const isAdmin = req.body.admin;
     const errors = validationResult(req);
-   if(!errors.isEmpty()){
-      return res.render("signup",{errors:errors.array()});
-   }
+    if (!errors.isEmpty()) {
+      return res.render("signup", { errors: errors.array() });
+    }
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await pool.query(
         "INSERT INTO users (firstname,lastname,username,password,admin) values($1,$2,$3,$4,$5)",
-        [firstname, lastname, username, hashedPassword,isAdmin]
+        [firstname, lastname, username, hashedPassword, isAdmin]
       );
       res.redirect("/login");
     } catch (err) {
-      if(err.code === "23505"){
-        return res.render("signup",{errors: [{msg:"Email is already registered"}]})
+      if (err.code === "23505") {
+        return res.render("signup", {
+          errors: [{ msg: "Email is already registered" }],
+        });
       }
       return next(err);
     }
   },
 ];
 
-exports.login_get = (req,res) => {
+exports.login_get = (req, res) => {
   res.render("login");
-}
+};
 
-exports.login_post = passport.authenticate("local",{
-  successRedirect:"/",
-  failureRedirect:"/login",
-})
-
-exports.grant_membershipPost = async (req,res)=>{
-    if(req.body.passcode===process.env.MEMBER_PASSCODE){
-        await pool.query(
-          `UPDATE  users
-          SET membership_status=true
-          WHERE id=$1`
-        ,[req.user.id]);
-        const {rows} = await pool.query(
-          `SELECT * FROM users WHERE id=$1`
-        ,[req.user.id]);
-        const updatedUser = rows[0];
-          req.login(updatedUser,(err )=>{
-            if(err) return next(err);
-            res.redirect("/messages",);
-          })
-    } else{
-      res.render("grant-membership",{
-        error:"Invalid passcode. Try again!"
-      })
+/*exports.login_post = passport.authenticate("local", {
+  successRedirect: "/",
+  failureRedirect: "/login",
+});*/
+exports.login_post = (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) return next(err);
+    if (!user) {
+      return res.render("login", { errors: [{ msg: info.message }] });
     }
-}
+    req.logIn(user, (err) => {
+      if (err) return next(err);
+      return res.redirect("/");
+    });
+  })(req, res, next);
+};
 
+
+exports.grant_membershipPost = async (req, res) => {
+  if (req.body.passcode === process.env.MEMBER_PASSCODE) {
+    await pool.query(
+      `UPDATE  users
+          SET membership_status=true
+          WHERE id=$1`,
+      [req.user.id]
+    );
+    const { rows } = await pool.query(`SELECT * FROM users WHERE id=$1`, [
+      req.user.id,
+    ]);
+    const updatedUser = rows[0];
+    req.login(updatedUser, (err) => {
+      if (err) return next(err);
+      res.redirect("/messages");
+    });
+  } else {
+    res.render("grant-membership", {
+      error: "Invalid passcode. Try again!",
+    });
+  }
+};

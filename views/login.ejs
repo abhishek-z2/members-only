@@ -7,6 +7,18 @@
 </head>
 <body>
    <h1>Log in</h1> 
+
+<% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+  <div class="error-messages">
+    <ul>
+      <% errors.forEach(error => { %>
+        <li><%= error.msg %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>
+
+
    <form action="/login" method="POST">
     <label for="username">username</label>
     <input type="email" name="username" id="username" required>

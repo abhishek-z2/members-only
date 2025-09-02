@@ -10,6 +10,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const indexRouter = require("./routes/indexRouter");
 
 const app = express();
+console.log("app started");
 
 app.set("views",path.join(__dirname,"views"));
 app.set("view engine","ejs");
@@ -18,6 +19,7 @@ app.use(express.urlencoded({extended:false}));
 passport.use(new LocalStrategy(
     async (username,password,done) => {
         try{
+            console.log("in local strategy")
             const result = await pool.query("SELECT * FROM users WHERE username=$1",[username]);
             const user = result.rows[0];
 
